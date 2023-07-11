@@ -1,0 +1,7 @@
+{
+  "accessKeyId": "masked",
+  "secretAccessKey": "masked",
+  "region":"us-west-1",
+  "s3location": "masked",
+  "GuardDutyDetectorId": "masked"
+}
