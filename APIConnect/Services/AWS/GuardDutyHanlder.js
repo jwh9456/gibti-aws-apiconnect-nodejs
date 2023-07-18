@@ -1,91 +1,85 @@
-import { GuardDuty } from "@aws-sdk/client-guardduty";
-import awsConfig from "./awsConfig.json" assert {type:'json'};
+import {
+  GuardDutyClient,
+  CreateThreatIntelSetCommand,
+  ListThreatIntelSetsCommand,
+  UpdateThreatIntelSetCommand,
+  GetThreatIntelSetCommand,
+} from "@aws-sdk/client-guardduty";
+import awsConfig from "./awsConfig.json" assert { type: "json" };
 
 export class GuardDutyHandler {
   constructor() {
-    this.guardDuty = new GuardDuty({
+    this.guardDuty = new GuardDutyClient({
       region: awsConfig.region,
       credentials: {
         accessKeyId: awsConfig.accessKeyId,
-        secretAccessKey: awsConfig.secretAccessKey
-      }
+        secretAccessKey: awsConfig.secretAccessKey,
+      },
     });
   }
-
 
   async createThreatIntelSet(filename) {
     const params = {
       Activate: true,
-      Format: "STIX",
-      Location: awsConfig.s3location + filename,
+      Format: "TXT",
+      Location: awsConfig.s3location + "TI-STIX/" + filename + ".txt",
       DetectorId: awsConfig.GuardDutyDetectorId,
-      Name: filename
+      Name: filename,
     };
-
-    this.guardDuty.createThreatIntelSet(params, async (err, data) => {
-      console.log(params.Location);
-      if (err) {
-        console.log(err, err.stack);
-        console.log(err._type);
-      } else {
-        console.log(data);
-      }
-    });
+    const command = new CreateThreatIntelSetCommand(params);
+    const response = await this.guardDuty.send(command);
+    console.log(response);
   }
 
-  async updateThreatIntelSet() {
-    params = {
+  async updateThreatIntelSet(id, filename) {
+    const params = {
+      DetectorId: awsConfig.GuardDutyDetectorId,
+      Location: awsConfig.s3location + "TI-STIX/" + filename + ".txt",
       Activate: true,
-      Format: "STIX",
-      Location: awsConfig.s3location + filename,
-      DetectorId: awsConfig.GuardDutyDetectorId,
-      Name: "Filename"
+      Name: filename,
+      ThreatIntelSetId: id,
     };
-
-    this.guardDuty.updateThreatIntelSet(params, async (err, data) => {
-      console.log(params.Location);
-      if (err) {
-        console.log(err, err.stack);
-        console.log(err._type);
-      } else {
-        console.log(data);
-      }
-    });
+    const command = new UpdateThreatIntelSetCommand(params);
+    await this.guardDuty.send(command);
+    console.log(filename + " updated")
   }
 
-  async updateThreatIntelSet() {
-    params = {
-      Activate: true,
-      Format: "STIX",
-      Location: awsConfig.s3location + filename,
+  async listThreatIntelSets() {
+    const command = new ListThreatIntelSetsCommand({
       DetectorId: awsConfig.GuardDutyDetectorId,
-      Name: "Filename"
+    });
+    const result = await this.guardDuty.send(command);
+    return result;
+  }
+
+  async getThreatIntelSet(id) {
+    const params = {
+      DetectorId: awsConfig.GuardDutyDetectorId,
+      ThreatIntelSetId: id,
     };
-
-    this.guardDuty.updateThreatIntelSet(params, async (err, data) => {
-      console.log(params.Location);
-      if (err) {
-        console.log(err, err.stack);
-        console.log(err._type);
-      } else {
-        console.log(data);
-      }
-    });
+    const command = new GetThreatIntelSetCommand(params);
+    const result = await this.guardDuty.send(command);
+    return result;
   }
 
-  async ListThreatIntelSets() {
-    this.guardDuty.ListThreatIntelSets(awsConfig.GuardDutyDetectorId, async (err, data) => {
-      console.log(params.Location);
-      if (err) {
-        console.log(err, err.stack);
-        console.log(err._type);
-      } else {
-        console.log(data);
+  async updateThreatIntelSets() {
+    const gd = new GuardDutyHandler()
+    let lists = (await gd.listThreatIntelSets()).ThreatIntelSetIds;
+    for (let IDs of lists) {
+      let SetName = (await gd.getThreatIntelSet(IDs)).Name;
+      if (SetName == "LotteGuardDutyIOC") {
+        await gd.updateThreatIntelSet(
+          IDs,
+          "LotteGuardDutyIOC"
+        );
+      } else if (SetName == "LotteGuardDutyMalwareC2") {
+        await gd.updateThreatIntelSet(
+          IDs,
+          "LotteGuardDutyMalwareC2"
+        );
       }
-    });
+    }
   }
-
-
 }
 
 export default GuardDutyHandler;

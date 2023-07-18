@@ -1,7 +1,8 @@
 {
-  "accessKeyId": "masked",
-  "secretAccessKey": "masked",
+  "accessKeyId": "d",
+  "secretAccessKey": "d",
   "region":"us-west-1",
-  "s3location": "masked",
-  "GuardDutyDetectorId": "masked"
+  "s3location":"s3://d/",
+  "GuardDutyDetectorId": "d",
+  "s3bucketname":"d"
 }
