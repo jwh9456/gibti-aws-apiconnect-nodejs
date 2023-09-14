@@ -1,8 +1,13 @@
+import { 
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3
+} from "@aws-sdk/client-s3";
 import fs from "fs";
-import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3 } from "@aws-sdk/client-s3";
 import awsConfig from "./awsConfig.json" assert { type: "json" };
 
-export class S3Handler {
+class S3Handler {
   constructor() {
     this.s3 = new S3({
       region: awsConfig.region,
@@ -79,7 +84,7 @@ export class S3Handler {
         response.Body.on('data', chunk => responseDataChunks.push(chunk))
         response.Body.once("end", () => resolve(responseDataChunks.join('')))
       } catch (error) {
-        return reject(err)        
+        console.log(error)    
       }
     })
   }

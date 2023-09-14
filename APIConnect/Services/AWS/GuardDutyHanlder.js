@@ -41,7 +41,6 @@ export class GuardDutyHandler {
     };
     const command = new UpdateThreatIntelSetCommand(params);
     await this.guardDuty.send(command);
-    console.log(filename + " updated")
   }
 
   async listThreatIntelSets() {
@@ -63,23 +62,21 @@ export class GuardDutyHandler {
   }
 
   async updateThreatIntelSets() {
-    const gd = new GuardDutyHandler()
-    let lists = (await gd.listThreatIntelSets()).ThreatIntelSetIds;
-    for (let IDs of lists) {
-      let SetName = (await gd.getThreatIntelSet(IDs)).Name;
-      if (SetName == "LotteGuardDutyIOC") {
-        await gd.updateThreatIntelSet(
-          IDs,
-          "LotteGuardDutyIOC"
-        );
-      } else if (SetName == "LotteGuardDutyMalwareC2") {
-        await gd.updateThreatIntelSet(
-          IDs,
-          "LotteGuardDutyMalwareC2"
-        );
+    const gd = new GuardDutyHandler();
+    const threatIntelSetNames = {
+      LotteGuardDutyIOC: "LotteGuardDutyIOC",
+      LotteGuardDutyMalwareC2: "LotteGuardDutyMalwareC2",
+      LotteGuardDutyDDoS: "LotteGuardDutyDDoS",
+      LotteGuardDutyScanner: "LotteGuardDutyScanner",
+    };
+
+    const lists = (await gd.listThreatIntelSets()).ThreatIntelSetIds;
+    for (const id of lists) {
+      const setName = (await gd.getThreatIntelSet(id)).Name;
+      if (threatIntelSetNames[setName]) {
+        await gd.updateThreatIntelSet(id, setName);
+        console.log(setName + " updated")
       }
     }
   }
 }
-
-export default GuardDutyHandler;

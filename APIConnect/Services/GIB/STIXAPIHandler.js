@@ -1,18 +1,16 @@
 import tiConfig from "./tiConfig.json" assert { type: "json" };
 import { execSync } from "child_process";
+import fetch from "node-fetch";
 
 class STIXAPIHandler {
   constructor() {
-    this.curlExec = `curl -X GET -u '${tiConfig.login}:${tiConfig.key}' -H 'Accept: application/taxii+json; version=2.1' `;
-    this.apiURL = "https://tap.group-ib.com/api/taxii/v2.1/collections/";
+    this.curlExec = `curl -X GET -u "${tiConfig.login}:${tiConfig.key}" -H "Accept: application/taxii+json; version=2.1"`;
+    this.apiURL = "https://tap.group-ib.com/api/taxii/v2.1/collections";
   }
 
   generateIOCCommon = async (filename) => {
     await execSync(
-      this.curlExec +
-        this.apiURL +
-        "ioc__common__ip/objects/" +
-        ` -o ${filename}.stix`,
+      `${this.curlExec} ${this.apiURL}/ioc__common__ip/objects/ -o ./tmp/${filename}.stix`,
       (error, stdout, stderr) => {
         if (error) console.log("Err: ", error);
       }
@@ -21,10 +19,7 @@ class STIXAPIHandler {
 
   generateMalwareC2 = async (filename) => {
     await execSync(
-      this.curlExec +
-        this.apiURL +
-        "malware__cnc/objects/" +
-        ` -o ${filename}.stix`,
+      `${this.curlExec} ${this.apiURL}/malware__cnc/objects/ -o ./tmp/${filename}.stix`,
       (error, stdout, stderr) => {
         if (error) console.log("Err: ", error);
       }

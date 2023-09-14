@@ -1,5 +1,5 @@
 import _ from "lodash";
-import fs, { readFileSync } from "fs";
+import fs from "fs";
 
 class STIXDataParser {
   constructor() {}
@@ -15,7 +15,7 @@ class STIXDataParser {
       .filter((value, index, self) => self.indexOf(value) === index)
       .join('\n');
 
-      fs.writeFileSync(filename + "-update.txt", formattedIPAddresses, "utf-8");
+      fs.writeFileSync("./tmp/"+filename + "-update.txt", formattedIPAddresses, "utf-8");
       console.log("Conversion completed. Check output.txt file.");
     } catch (error) {
       console.error("Error reading file:", error);
@@ -24,14 +24,14 @@ class STIXDataParser {
 
   concatFile = async (filename,stringdata) => {
     try {
-      const openedFile = fs.readFileSync(`./${filename}-update.txt`, 'utf8');
-      console.log(stringdata)
+      const openedFile = fs.readFileSync(`./tmp/${filename}-update.txt`, 'utf8');
       const concatenatedText = stringdata +'\n' +openedFile;
-      fs.writeFileSync(`./${filename}.txt`, concatenatedText, 'utf8');
+      fs.writeFileSync(`./tmp/${filename}.txt`, concatenatedText, 'utf8');
       console.log(`Concatenated text saved to ${filename}.txt successfully!`);
     } catch (err) {
       console.error(`Error processing files:`, err);
     }
   };
 }
+
 export default STIXDataParser;
